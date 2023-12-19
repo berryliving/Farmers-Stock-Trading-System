@@ -80,9 +80,9 @@
             <a href="uploadProduct.php" class="btn btn-danger">Post Crops</a>
             <a href="myProducts.php" class="btn btn-danger">My Products</a>
             <a href="viewOrder.php" class="btn btn-danger">View Order</a>
-            <a href="receivePayment.php" class="btn btn-danger">Receive Payment</a>
+            <!-- <a href="receivePayment.php" class="btn btn-danger">Receive Payment</a> -->
             <a href="Login/logout.php" class="btn btn-danger">Logout</a>
-        </div>
+        </div>j8
 
         <section id="one" class="wrapper style1 align">
             <div class="inner">

@@ -82,7 +82,7 @@
             <a href="productMenu.php" class="btn btn-danger">View Crops</a>
             <a href="productMenu.php?n=1" class="btn btn-danger">Search Crops</a>
             <a href="makeOrder.php" class="btn btn-danger">Make Order</a>
-            <a href="buyNow.php" class="btn btn-danger">Send Payment</a>
+            <!-- <a href="buyNow.php" class="btn btn-danger">Send Payment</a> -->
             <a href="Login/logout.php" class="btn btn-danger">Logout</a>
         </div>
 

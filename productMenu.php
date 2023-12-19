@@ -99,17 +99,25 @@
 
 						while($row = $result->fetch_array()):
 							$picDestination = "images/productImages/".$row['pimage'];
+
+							// Retrieve farmer information
+							$farmerID = $row['fid'];
+							$query = "SELECT * FROM farmer WHERE fid = '$farmerID'";
+							$farmerResult = mysqli_query($conn, $query);
+							$farmerRow = mysqli_fetch_assoc($farmerResult);
+							$farmerName = $farmerRow['fname'];
 						?>
 						<div class="col-md-4">
 						<section>
-							<strong><h2 class="title" style="color:black; "><?php echo $row['product'].'';?></h2></strong>
-							<a href="review.php?pid=<?php echo $row['pid'] ;?>" > <img class="image fit" src="<?php echo $picDestination;?>" height="220px;"  /></a>
+							<strong><h2 class="title" style="color:black; "><?php echo $row['product']; ?></h2></strong>
+							<a href="review.php?pid=<?php echo $row['pid']; ?>" > <img class="image fit" src="<?php echo $picDestination;?>" height="220px;"  /></a>
 
 							<div style="text-align: left">
 							<blockquote>
-								<?php echo "Type : ".$row['pcat'].'';?><br>
+								<?php echo "Type: ".$row['pcat']; ?><br>
 								<?php echo "Quantity: ".$row['quantity']; ?><br>
-								<?php echo "Price : ".$row['price'].' /-Tsh';?><br>
+								<?php echo "Price: ".$row['price']." /-Tsh"; ?><br>
+								<?php echo "Farmer: ".$farmerName; ?><br>
 							</blockquote>
 							</div>
 						</section>

@@ -4,6 +4,7 @@ session_start();
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = dataFilter($_POST['name']);
     $mobile = dataFilter($_POST['mobile']);
+    $lipanamba = isset($_POST['lipanamba']) ? $_POST['lipanamba'] : ''; // Retrieve Lipanamba if it exists
     $user = dataFilter($_POST['username']);
     $email = dataFilter($_POST['email']);
     $pass = dataFilter(password_hash($_POST['pass'], PASSWORD_BCRYPT));
@@ -16,6 +17,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $_SESSION['Password'] = $pass;
     $_SESSION['Username'] = $user;
     $_SESSION['Mobile'] = $mobile;
+    $_SESSION['Lipanamba'] = $lipanamba;
     $_SESSION['Category'] = $category;
     $_SESSION['Hash'] = $hash;
     $_SESSION['Addr'] = $addr;
@@ -40,8 +42,8 @@ if ($category == 1) {
         header("location: error.php");
         exit();
     } else {
-        $sql = "INSERT INTO farmer (fname, fusername, fpassword, fhash, fmobile, femail, faddress)
-                VALUES ('$name','$user','$pass','$hash','$mobile','$email','$addr')";
+        $sql = "INSERT INTO farmer (fname, fusername, fpassword, fhash, fmobile, lipanamba, femail, faddress)
+        VALUES ('$name', '$user', '$pass', '$hash', '$mobile', '$lipanamba', '$email', '$addr')";
 
         if (mysqli_query($conn, $sql)) {
             $_SESSION['Active'] = 0;

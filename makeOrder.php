@@ -16,6 +16,74 @@ if (isset($_GET['flag'])) {
     $sql = "INSERT INTO mycart (bid, pid) VALUES ('$bid', '$pid')";
     $result = mysqli_query($conn, $sql);
 }
+
+// Make order
+if (isset($_POST['make_order'])) {
+    // Get the selected product ID and quantity from the form
+    $pid = $_POST['pid'];
+    $quantity = $_POST['quantity'];
+
+    // Retrieve product information
+    $product_query = mysqli_query($conn, "SELECT * FROM fproduct WHERE pid = '$pid'");
+    $product_row = mysqli_fetch_assoc($product_query);
+    $fid = $product_row['fid'];
+    $availableQuantity = $product_row['quantity'];
+
+    // Check if the requested quantity is available
+    if ($availableQuantity < $quantity) {
+        $_SESSION['message'] = "Insufficient quantity available for this product!";
+        header("Location: Login/error.php");
+        exit();
+    }
+
+    // Calculate the updated quantity
+    $updatedQuantity = $availableQuantity - $quantity;
+
+    // Update the product quantity in the database
+    $updateSql = "UPDATE fproduct SET quantity = '$updatedQuantity' WHERE pid = '$pid'";
+    $updateResult = mysqli_query($conn, $updateSql);
+
+    if ($updateResult) {
+        // Insert the order into the database
+        $orderSql = "INSERT INTO orders (fid, bid, pid, quantity) VALUES ('$fid', '$bid', '$pid', '$quantity')";
+        $orderResult = mysqli_query($conn, $orderSql);
+
+        if ($orderResult) {
+            // Retrieve buyer information
+            $buyer_query = mysqli_query($conn, "SELECT * FROM buyer WHERE bid = '$bid'");
+            $buyer_row = mysqli_fetch_assoc($buyer_query);
+            $buyer_name = $buyer_row['bname'];
+            $buyer_email = $buyer_row['bemail'];
+
+            // Retrieve product information
+            $product_name = $product_row['product'];
+
+            // Retrieve farmer information
+            $farmer_query = mysqli_query($conn, "SELECT * FROM farmer WHERE fid = '$fid'");
+            $farmer_row = mysqli_fetch_assoc($farmer_query);
+            $farmer_name = $farmer_row['name'];
+            $farmer_email = $farmer_row['email'];
+
+            // Display success message with order details
+            $_SESSION['message'] = "Order placed successfully!";
+            $_SESSION['order_details'] = "Buyer: $buyer_name ($buyer_email)<br>";
+            $_SESSION['order_details'] .= "Product: $product_name<br>";
+            $_SESSION['order_details'] .= "Quantity: $quantity<br>";
+            $_SESSION['order_details'] .= "Farmer: $farmer_name ($farmer_email)";
+
+            header("Location: Login/success.php");
+            exit();
+        } else {
+            $_SESSION['message'] = "Failed to place the order. Please try again.";
+            header("Location: Login/error.php");
+            exit();
+        }
+    } else {
+        $_SESSION['message'] = "Failed to update the product quantity. Please try again.";
+        header("Location: Login/error.php");
+        exit();
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -46,65 +114,8 @@ if (isset($_GET['flag'])) {
 
 <body>
 
-    <?php
-    require 'menu.php';
+    <?php require 'menu.php'; ?>
 
-    function dataFilter($data)
-    {
-        $data = trim($data);
-        $data = stripslashes($data);
-        $data = htmlspecialchars($data);
-        return $data;
-    }
-
-    // Make order
-    if (isset($_POST['make_order'])) {
-        // Get the selected product ID and quantity from the form
-        $fid = $_POST['fid'];
-        $bid = $_POST['bid'];
-        $pid = $_POST['pid'];
-        $quantity = $_POST['quantity'];
-
-        // Insert the order into the database
-        $sql = "INSERT INTO orders (fid, bid, pid, quantity) VALUES ('$fid','$bid', '$pid', '$quantity')";
-        $result = mysqli_query($conn, $sql);
-
-        if ($result) {
-            // Retrieve buyer information
-            $buyer_query = mysqli_query($conn, "SELECT * FROM buyer WHERE bid = '$bid'");
-            $buyer_row = mysqli_fetch_assoc($buyer_query);
-            $buyer_name = $buyer_row['bname'];
-            $buyer_email = $buyer_row['bemail'];
-
-            // Retrieve product information
-            $product_query = mysqli_query($conn, "SELECT * FROM fproduct WHERE pid = '$pid'");
-            $product_row = mysqli_fetch_assoc($product_query);
-            $product_name = $product_row['product'];
-
-            // Retrieve farmer information
-            $farmer_query = mysqli_query($conn, "SELECT * FROM farmer WHERE fid = '$fid'");
-            $farmer_row = mysqli_fetch_assoc($farmer_query);
-            $farmer_name = $farmer_row['name'];
-            $farmer_email = $farmer_row['email'];
-
-            // Display success message with order details
-            $_SESSION['message'] = "Order placed successfully!";
-            $_SESSION['order_details'] = "Buyer: $buyer_name ($buyer_email)<br>";
-            $_SESSION['order_details'] .= "Product: $product_name<br>";
-            $_SESSION['order_details'] .= "Quantity: $quantity<br>";
-            $_SESSION['order_details'] .= "Farmer: $farmer_name ($farmer_email)";
-
-            header("Location: Login/success.php");
-            exit();
-        } else {
-            $_SESSION['message'] = "Failed to place the order. Please try again.";
-            header("Location: Login/error.php");
-            exit();
-        }
-    }
-    ?>
-
-    <!-- One -->
     <section id="main" class="wrapper style1 align-center">
         <div class="container">
             <h2>Make Order</h2>
@@ -118,12 +129,12 @@ if (isset($_GET['flag'])) {
 
                         while ($row = $result->fetch_assoc()) {
                             $fid = $row['fid'];
-                            // $bid = $row['bid'];
                             $pid = $row['pid'];
                             $product = $row['product'];
                             $pcat = $row['pcat'];
                             $price = $row['price'];
-                            $picDestination = "images/productImages/".$row['pimage'];
+                            $availableQuantity = $row['quantity'];
+                            $picDestination = "images/productImages/" . $row['pimage'];
 
                             echo "<div class='col-md-4'>";
                             echo "<section>";
@@ -134,19 +145,16 @@ if (isset($_GET['flag'])) {
                             echo "</div>";
                             echo "<div style='text-align: left'>";
                             echo "<form method='POST' action=''>";
-                            echo "<input type='hidden' name='bid' value='$bid'>";
                             echo "<input type='hidden' name='pid' value='$pid'>";
                             echo "<label for='quantity'>Quantity:</label>";
-                            echo "<input type='number' name='quantity' id='quantity' value='1' min='1'>";
+                            echo "<input type='number' name='quantity' id='quantity' value='1' min='1' max='$availableQuantity'>";
                             echo "<button type='submit' name='make_order'>Order</button>";
                             echo "</form>";
                             echo "</div>";
                             echo "</section>";
                             echo "</div>";
-
                         }
                         ?>
-
                     </div>
                 </div>
             </section>

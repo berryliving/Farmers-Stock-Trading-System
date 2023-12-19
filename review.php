@@ -23,21 +23,25 @@ if (isset($pid)) {
     if ($productResult && mysqli_num_rows($productResult) > 0) {
         $row = mysqli_fetch_assoc($productResult);
         $picDestination = "images/productImages/" . $row['pimage']; // Assign the image path
+
+        // Fetch farmer information
+        if (isset($fid)) {
+            $farmerSql = "SELECT * FROM farmer WHERE fid = '$fid'";
+            $farmerResult = mysqli_query($conn, $farmerSql);
+            if ($farmerResult && mysqli_num_rows($farmerResult) > 0) {
+                $farmer_row = mysqli_fetch_assoc($farmerResult);
+                $farmerName = $farmer_row['fname'];
+            } else {
+                // Handle the case when farmer information is not found
+            }
+        } else {
+            // Handle the case when 'fid' is not found
+        }
     } else {
         // Handle the case when product information is not found
     }
 }
 
-if (isset($fid)) {
-    // Fetch farmer information
-    $farmerSql = "SELECT * FROM farmer WHERE fid = $fid";
-    $farmerResult = mysqli_query($conn, $farmerSql);
-    if ($farmerResult && mysqli_num_rows($farmerResult) > 0) {
-        $frow = mysqli_fetch_assoc($farmerResult);
-    } else {
-        // Handle the case when farmer information is not found
-    }
-}
 
 if (isset($_POST['add_to_cart'])) {
     $pid = $_POST['pid'];
@@ -113,7 +117,7 @@ if (isset($_POST['add_to_cart'])) {
                     <div class="6u 12u$(large)">
                         <form method="POST" action="">
                             <input type="hidden" name="pid" value="<?= $pid ?? ''; ?>">
-                            <input type="number" name="quantity" value="1" min="1" max="<?= $row['quantity'] ?? ''; ?>" required>
+                            <!-- <input type="number" name="quantity" value="1" min="1" max="<?= $row['quantity'] ?? ''; ?>" required> -->
                             <input type="submit" name="add_to_cart" value="Add to Cart">
                         </form>
                     </div>
@@ -129,10 +133,14 @@ if (isset($_POST['add_to_cart'])) {
                     <img class="image fit" src="<?php echo $picDestination ?? ''; ?>" alt="" />
                 </div><!-- Image of farmer-->
 
-                <div class="col-12 col-sm-6">
-                    <p style="font: 50px Times New Roman;"><?= $row['product'] ?? 'Not Available'; ?></p>
-                    <p style="font: 30px Times New Roman;">Product Owner: <?= $frow['fname'] ?? ''; ?></p>
-                    <p style="font: 30px Times New Roman;">Price: <?= $row['price'] ?? 'Not Available'.' /-Tsh'; ?></p>
+                <div style="text-align: left">
+                    <blockquote>
+                        <?php echo "Type: ".$row['pcat']; ?><br>
+                        <?php echo "Quantity: ".$row['quantity']; ?><br>
+                        <input type="number" name="quantity" value="1" min="1" max="<?= $row['quantity'] ?? ''; ?>" required>
+                        <?php echo "Price: ".$row['price']." /-Tsh"; ?><br>
+                        <?php echo "Farmer: ".$fname; ?><br>
+                    </blockquote>
                 </div>
             </div><br />
             <div class="row">
@@ -142,15 +150,15 @@ if (isset($_POST['add_to_cart'])) {
             </div>
         </div>
 
-        <div class="container">
+        <!-- <div class="container">
             <center>
             <h1>Product Reviews</h1>
             <div class="row">
                 <?php
-                $sql = "SELECT * FROM review WHERE pid=0";
-                $result = mysqli_query($conn, $sql);
-                if ($result) {
-                    while ($row1 = $result->fetch_array()) {
+                // $sql = "SELECT * FROM review WHERE pid=0";
+                // $result = mysqli_query($conn, $sql);
+                // if ($result) {
+                //     while ($row1 = $result->fetch_array()) {
                         ?>
                         <div class="con">
                             <div class="row">
@@ -193,7 +201,7 @@ if (isset($_POST['add_to_cart'])) {
                 </div>
             </form>
             </center>
-        </div>
+        </div> -->
     </section>
 </body>
 </html>

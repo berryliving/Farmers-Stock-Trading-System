@@ -96,6 +96,7 @@ CREATE TABLE `farmer` (
   `fhash` varchar(255) NOT NULL,
   `femail` varchar(255) NOT NULL,
   `fmobile` varchar(255) NOT NULL,
+  `lipanamba` int(255) NOT NULL,
   `faddress` text NOT NULL,
   `factive` int(255) NOT NULL DEFAULT 0,
   `frating` int(11) NOT NULL DEFAULT 0,
@@ -107,9 +108,9 @@ CREATE TABLE `farmer` (
 -- Dumping data for table `farmer`
 --
 
-INSERT INTO `farmer` (`fid`, `fname`, `fusername`, `fpassword`, `fhash`, `femail`, `fmobile`, `faddress`, `factive`, `frating`, `picExt`, `picStatus`) VALUES
-(3, 'Kaivalya Hemant Mendki', 'ThePhenom', '$2y$10$22ezmzHRa9c5ycHmVm5RpOnlT4LwFaDZar1XhmLRJQKGrcVRhPgti', '61b4a64be663682e8cb037d9719ad8cd', 'kmendki98@gmail.com', '8600611198', 'abcde', 0, 0, 'png', 0),
-(4, 'suraj ghosh', 'suraj', '$2y$10$7QVBKMVm4p/d0AOCVauhQOdHacpyeVlOgKzROuVO8bGwZc7v7ZjVi', '2291d2ec3b3048d1a6f86c2c4591b7e0', 'soumo@gmail.com', '9007137711', 'kolkata', 0, 0, 'png', 0);
+INSERT INTO `farmer` (`fid`, `fname`, `fusername`, `fpassword`, `fhash`, `femail`, `fmobile`, `lipanamba` `faddress`, `factive`, `frating`, `picExt`, `picStatus`) VALUES
+(3, 'Kaivalya Hemant Mendki', 'ThePhenom', '$2y$10$22ezmzHRa9c5ycHmVm5RpOnlT4LwFaDZar1XhmLRJQKGrcVRhPgti', '61b4a64be663682e8cb037d9719ad8cd', 'kmendki98@gmail.com', '8600611198', '155012', 'abcde', 0, 0, 'png', 0),
+(4, 'suraj ghosh', 'suraj', '$2y$10$7QVBKMVm4p/d0AOCVauhQOdHacpyeVlOgKzROuVO8bGwZc7v7ZjVi', '2291d2ec3b3048d1a6f86c2c4591b7e0', 'soumo@gmail.com', '9007137711', '155013', 'kolkata', 0, 0, 'png', 0);
 
 -- --------------------------------------------------------
 
@@ -134,10 +135,10 @@ CREATE TABLE `fproduct` (
 --
 
 INSERT INTO `fproduct` (`fid`, `pid`, `product`, `pcat`, `pinfo`, `price`,`quantity`, `pimage`, `picStatus`) VALUES
-(3, 27, 'Mango', 'Fruit', '<p>Mango raseela</p>\r\n', 500, 'Mango3.jpeg', 1),
-(3, 28, 'Ladyfinger', 'Vegetable', '<p>Its veggie</p>\r\n', 1000, 'Ladyfinger3.jpg', 1),
-(3, 29, 'Bajra', 'Grains', '<p>bajre di rti</p>\r\n', 400, 'Bajra3.jpg', 1),
-(3, 30, 'Banana', 'Fruit', '<p>Jalgaon banana</p>\r\n', 400, 'Banana3.jpg', 1);
+(3, 27, 'Mango', 'Fruit', '<p>Mango raseela</p>\r\n', 500, 100, Mango3.jpeg', 1),
+(3, 28, 'Ladyfinger', 'Vegetable', '<p>Its veggie</p>\r\n', 1000, 100, 'Ladyfinger3.jpg', 1),
+(3, 29, 'Bajra', 'Grains', '<p>bajre di rti</p>\r\n', 400, 100, 'Bajra3.jpg', 1),
+(3, 30, 'Banana', 'Fruit', '<p>Jalgaon banana</p>\r\n', 400, 100, 'Banana3.jpg', 1);
 
 -- --------------------------------------------------------
 
@@ -221,10 +222,7 @@ CREATE TABLE `orders` (
     `pid` INT(255) NOT NULL,
     `quantity` INT(255) NOT NULL,
     order_date DATETIME,
-    status ENUM('pending', 'completed', 'cancelled') NOT NULL DEFAULT 'pending',
-    FOREIGN KEY (fid) REFERENCES farmers(fid),
-    FOREIGN KEY (bid) REFERENCES buyers(bid),
-    FOREIGN KEY (pid) REFERENCES products(pid)
+    status ENUM('pending', 'completed', 'cancelled') NOT NULL DEFAULT 'pending'
 );
 
 
@@ -236,8 +234,15 @@ CREATE TABLE mycrops (
   price DECIMAL(10, 2),
   quantity INT,
   description TEXT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (fid) REFERENCES farmer(fid)
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE payments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    pid INT,
+    quantity INT,
+    payment_ref VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 
@@ -321,10 +326,6 @@ ALTER TABLE `transaction`
 --
 -- Constraints for dumped tables
 --
-
-ALTER TABLE `orders` 
-  ADD COLUMN bid INT NOT NULL;
-
 
 --
 -- Constraints for table `buyer`
